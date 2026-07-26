@@ -1,0 +1,40 @@
+# ESP-IDF build artifacts
+build/
+**/build/
+sdkconfig.old
+managed_components/
+dependencies.lock
+
+# Rust / Cargo build artifacts
+target/
+**/target/
+**/*.rs.bk
+
+# Python cache & test artifacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# IDE and Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+.vs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
