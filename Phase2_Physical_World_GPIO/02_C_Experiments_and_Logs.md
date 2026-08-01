@@ -51,3 +51,24 @@ Hard resetting via RTS pin...
 GPIO 7 is high 
 GPIO 7 is low 
 ```
+
+## Experiment 3: The `c_RMT_RGB_toggle` Project (RMT Peripheral)
+
+### Objective
+Control the WS2812 "Smart" RGB LED attached to GPIO 2. The WS2812 requires strict microsecond electrical pulses to transmit 24-bit color data. Because FreeRTOS software toggling is not fast or precise enough, we must use the ESP32's **Remote Control (RMT) Peripheral** to generate the hardware signals.
+
+### The Procedure
+1. **The Target:** We ran `idf.py set-target esp32c3` to ensure ESP-IDF compiles for the RISC-V architecture.
+2. **The Blueprint:** We initialized `rmt_tx_channel_config_t` with 10MHz resolution (1 tick = 100ns) and 48 memory symbols.
+3. **The Data Packing:** We packed our colors into `0xGGRRBB` format. Since the WS2812 expects the Green byte first, and demands the Most Significant Bit first, extracting the bits iteratively using `(color >> (23 - i)) & 1` perfectly satisfied the hardware protocol without needing complex `if/else` logic.
+4. **The Transmission:** We instantiated a Copy Encoder to move our standard C array directly into the hardware's tiny DMA memory, then fired `rmt_transmit()`.
+
+### Common Errors Encountered
+*   `missing braces around initializer`: ESP-IDF v5/v6 wraps `rmt_symbol_word_t` in a union. Using brace initialization (e.g. `{{{8, 1, 4, 0}}}`) is dangerous and confusing. **Solution:** Use explicit Designated Initializers (`.duration0 = 8`).
+*   `DMA not supported`: The ESP32-C3 does not support RMT DMA. We encountered this because we did not zero-initialize our configuration struct (`rmt_tx_channel_config_t rmt_tx;`), leaving garbage data on the stack that accidentally enabled the `flags.with_dma` boolean. **Solution:** Always zero-initialize structs (`= {}`).
+*   `Wrong chip argument`: Flashing failed because the project was defaulting to the original ESP32 target instead of `esp32c3`.
+
+### Key Code Concepts
+*   `rmt_new_tx_channel`: Claims physical hardware.
+*   `rmt_new_copy_encoder`: Creates an engine to translate standard arrays into hardware registers.
+*   `rmt_transmit`: Pulls the trigger to dump the memory into the wire.
