@@ -16,31 +16,49 @@ When you write a program, where does it live? The ESP32-C3 doesn't have a hard d
 *   **SRAM (Static RAM - 400KB):** Extremely fast memory used for your program's variables, stack, and heap. Loses data when powered off.
 *   **SPI Flash (usually 4MB external to the chip, but inside the metal shield):** Where your actual compiled code is permanently stored. The chip executes code directly from this flash memory using a technique called eXecute-In-Place (XIP).
 
-## 3. The Toolchain (From Linux to ESP32)
+## 3. The Toolchains (C/ESP-IDF vs Rust)
 Your computer speaks x86_64. The ESP32-C3 speaks RISC-V. We need a "cross-compiler" to translate your code.
-In the Rust ecosystem, this is beautiful and seamless compared to C/C++.
+Because we are following the **Parallel C and Rust Methodology**, we will use two different toolchains:
 
-1.  **The Compiler Target:** We tell Rust to compile for `riscv32imc-unknown-none-elf` (bare-metal RISC-V).
-2.  **The Flasher (`espflash`):** A Rust utility that talks over `/dev/ttyACM0` to the ESP32-C3's ROM bootloader and writes your compiled `.bin` file into the SPI Flash memory.
+1. **The C Toolchain (ESP-IDF):** Uses GCC (`riscv32-esp-elf-gcc`), CMake, and `idf.py`. It always runs on top of FreeRTOS.
+2. **The Rust Toolchain (`esp-rs`):** Uses LLVM (`riscv32imc-unknown-none-elf`), Cargo, and `espflash`. We use the `no_std` bare-metal approach, meaning there is no operating system—just your code and the hardware.
 
 ### Action Items for You:
+
+#### Part A: The C Baseline (ESP-IDF)
+We already explored this in Phase 0.5, but let's officially run it here!
+1.  **Activate the Environment:** 
+    ```bash
+    source ~/.espressif/tools/activate_idf_v6.0.2.sh
+    ```
+2.  **Navigate to the C Project:** 
+    ```bash
+    cd ~/esp32-c3/Phase1_The_Foundation/hello_world
+    ```
+3.  **Build and Flash:**
+    ```bash
+    idf.py set-target esp32c3
+    idf.py build
+    idf.py -p /dev/ttyACM0 flash monitor
+    ```
+
+#### Part B: Porting to Embedded Rust
+Now let's build the exact same "Hello World" logic in pure, bare-metal Rust.
 1.  **Install the Rust Target:**
     ```bash
     rustup target add riscv32imc-unknown-none-elf
     ```
-2.  **Install the Tools:**
+2.  **Install the Tools (in a clean terminal, NOT the ESP-IDF terminal!):**
     ```bash
-    cargo install cargo-generate
+    cargo install esp-generate
     cargo install espflash
     ```
-3.  **Create your first project:**
-    Inside this `Phase1` directory, run:
+3.  **Create your Rust project:**
+    Inside this `Phase1` directory, run the new generator:
     ```bash
-    cargo generate esp-rs/esp-template
+    esp-generate --chip esp32c3 hello_esp
     ```
-    *   **Project Name:** `hello_esp`
-    *   **MCU:** `esp32c3`
-    *   **Configure advanced:** `false`
+    *(If it prompts you for additional settings, you can accept the defaults for a standard bare-metal project).*
 4.  **Run it!**
     ```bash
     cd hello_esp

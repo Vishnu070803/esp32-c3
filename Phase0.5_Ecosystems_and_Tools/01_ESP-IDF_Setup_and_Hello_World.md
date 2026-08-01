@@ -93,7 +93,7 @@ The installer will:
 ```
 ============================================
 to activate the environment, run:
-    source "/home/svishnu/.espressif/tools/activate_idf_v6.0.2.sh"
+    source ~/.espressif/tools/activate_idf_v6.0.2.sh
 ============================================
 ```
 
@@ -106,10 +106,10 @@ to activate the environment, run:
 Every time you open a new terminal to work on ESP32 projects, you **must activate** the ESP-IDF environment first. This adds the cross-compiler (`riscv32-esp-elf-gcc`) and `idf.py` to your PATH:
 
 ```bash
-source "/home/svishnu/.espressif/tools/activate_idf_v6.0.2.sh"
+source ~/.espressif/tools/activate_idf_v6.0.2.sh
 ```
 
-> **Tip:** Add this line to your `~/.bashrc` file to auto-activate every time you open a terminal, but be aware it slightly slows down shell startup.
+> **Tip:** Add this line to your [~/.bashrc](~/.bashrc) file to auto-activate every time you open a terminal, but be aware it slightly slows down shell startup.
 
 After sourcing, verify it's working:
 
@@ -181,7 +181,7 @@ my_esp32_project/
 
 #### Detailed Breakdown of Every Key File:
 
-1. **Root `CMakeLists.txt`**
+1. **Root [CMakeLists.txt](../Phase1_The_Foundation/hello_world/CMakeLists.txt)**
    * **Role:** Tells CMake that this directory is an ESP-IDF project.
    * **Minimal Content:**
      ```cmake
@@ -191,28 +191,28 @@ my_esp32_project/
      ```
    * **Rule:** Must be run at the root of the project directory where `idf.py` is invoked.
 
-2. **`main/` Component Directory**
+2. **[main/](../Phase1_The_Foundation/hello_world/main) Component Directory**
    * **Role:** Every ESP-IDF project has a default primary component called `main`.
-   * **`main/CMakeLists.txt`:** Registers the source files and header include paths for the `main` component.
+   * **[main/CMakeLists.txt](../Phase1_The_Foundation/hello_world/main/CMakeLists.txt):** Registers the source files and header include paths for the `main` component.
      ```cmake
      idf_component_register(SRCS "hello_world_main.c"
                             INCLUDE_DIRS ".")
      ```
-   * **`hello_world_main.c`:** Contains `void app_main(void)`—the entry point function called by ESP-IDF's FreeRTOS initialization task after boot.
+   * **[hello_world_main.c](../Phase1_The_Foundation/hello_world/main/hello_world_main.c):** Contains `void app_main(void)`—the entry point function called by ESP-IDF's FreeRTOS initialization task after boot.
 
 3. **`components/` Directory (Optional)**
    * **Role:** Contains custom modular libraries (drivers, utilities). ESP-IDF treats each subfolder with a `CMakeLists.txt` as a decoupled component that can be reused across multiple projects.
 
-4. **`sdkconfig` File**
+4. **[sdkconfig](../Phase1_The_Foundation/hello_world/sdkconfig) File**
    * **Role:** Generated automatically by `idf.py set-target` or `idf.py menuconfig`. It stores hundreds of system settings (CPU clock frequency, watchdog timeouts, Wi-Fi configuration, FreeRTOS tick rate, log levels).
-   * **Rule:** Never manually edit `sdkconfig` while learning; use `idf.py menuconfig` to edit it visually.
+   * **Rule:** Never manually edit [sdkconfig](../Phase1_The_Foundation/hello_world/sdkconfig) while learning; use `idf.py menuconfig` to edit it visually.
 
-5. **`build/` Directory**
+5. **[build/](../Phase1_The_Foundation/hello_world/build) Directory**
    * **Role:** Contains all compiled output. Key outputs generated after `idf.py build`:
-     * `build/bootloader/bootloader.bin` → 2nd stage bootloader flashed at `0x0`
-     * `build/partition_table/partition-table.bin` → Flash layout map flashed at `0x8000`
-     * `build/hello_world.bin` → Application binary flashed at `0x10000`
-     * `build/hello_world.elf` → Symbol file used by GDB debugger and `idf.py monitor` for stack traces.
+     * [build/bootloader/bootloader.bin](../Phase1_The_Foundation/hello_world/build/bootloader/bootloader.bin) → 2nd stage bootloader flashed at `0x0`
+     * [build/partition_table/partition-table.bin](../Phase1_The_Foundation/hello_world/build/partition_table/partition-table.bin) → Flash layout map flashed at `0x8000`
+     * [build/hello_world.bin](../Phase1_The_Foundation/hello_world/build/hello_world.bin) → Application binary flashed at `0x10000`
+     * [build/hello_world.elf](../Phase1_The_Foundation/hello_world/build/hello_world.elf) → Symbol file used by GDB debugger and `idf.py monitor` for stack traces.
    * **Rule:** This directory can be safely deleted at any time with `idf.py fullclean`.
 
 6. **`partitions.csv` (Optional)**
@@ -221,8 +221,8 @@ my_esp32_project/
 7. **Linker Scripts (`.ld` Files)**
    * **Role:** Tells the GCC linker (`riscv32-esp-elf-ld`) exact memory addresses for code sections (`.text` in Flash, `.data`/`.bss` in SRAM, vector tables, ROM symbols).
    * **Why are there multiple `.ld` files instead of just one?**
-     * **`memory.ld` (Physical Memory Map):** Defines *where* physical SRAM and Flash memory start (`ORIGIN`) and how large they are (`LENGTH`). This changes depending on board variant/Flash size.
-     * **`sections.ld` (Code Placement Rules):** Defines *where* C code sections (`.text` -> Flash, `.data`/`.bss` -> SRAM) are mapped. This stays identical across chip variants. `sections.ld` uses `INCLUDE memory.ld` to combine them.
+     * **[memory.ld](../Phase1_The_Foundation/hello_world/build/esp-idf/esp_system/ld/memory.ld) (Physical Memory Map):** Defines *where* physical SRAM and Flash memory start (`ORIGIN`) and how large they are (`LENGTH`). This changes depending on board variant/Flash size.
+     * **[sections.ld](../Phase1_The_Foundation/hello_world/build/esp-idf/esp_system/ld/sections.ld) (Code Placement Rules):** Defines *where* C code sections (`.text` -> Flash, `.data`/`.bss` -> SRAM) are mapped. This stays identical across chip variants. `sections.ld` uses `INCLUDE memory.ld` to combine them.
      * **Modularity Industry Standard:** Decoupling hardware memory sizes from software code rules is standard practice across ARM Cortex-M, RISC-V, and embedded systems to avoid duplicating section rules for every board.
    * **Why are there two pairs (`app` vs `bootloader`)?**
      * ESP-IDF builds two standalone binaries per project:
@@ -230,16 +230,16 @@ my_esp32_project/
        2. **App (`memory.ld` + `sections.ld`):** Runs second after handoff, utilizing the full SRAM and Flash.
    * **Where they live:**
      * **Generated App Linker Scripts:**
-       * [build/esp-idf/esp_system/ld/memory.ld](file:///home/svishnu/esp32-c3/Phase1_The_Foundation/hello_world/build/esp-idf/esp_system/ld/memory.ld)
-       * [build/esp-idf/esp_system/ld/sections.ld](file:///home/svishnu/esp32-c3/Phase1_The_Foundation/hello_world/build/esp-idf/esp_system/ld/sections.ld)
+       * [build/esp-idf/esp_system/ld/memory.ld](../Phase1_The_Foundation/hello_world/build/esp-idf/esp_system/ld/memory.ld)
+       * [build/esp-idf/esp_system/ld/sections.ld](../Phase1_The_Foundation/hello_world/build/esp-idf/esp_system/ld/sections.ld)
      * **Generated Bootloader Linker Scripts:**
-       * `build/bootloader/ld/bootloader.memory.ld`
-       * `build/bootloader/ld/bootloader.sections.ld`
+       * [build/bootloader/ld/bootloader.memory.ld](../Phase1_The_Foundation/hello_world/build/bootloader/ld/bootloader.memory.ld)
+       * [build/bootloader/ld/bootloader.sections.ld](../Phase1_The_Foundation/hello_world/build/bootloader/ld/bootloader.sections.ld)
      * **Framework Source Templates:**
-       * `~/.espressif/v6.0.2/esp-idf/components/esp_system/ld/esp32c3/memory.ld.in`
-       * `~/.espressif/v6.0.2/esp-idf/components/esp_system/ld/esp32c3/sections.ld.in`
+       * [~/.espressif/v6.0.2/esp-idf/components/esp_system/ld/esp32c3/memory.ld.in](~/.espressif/v6.0.2/esp-idf/components/esp_system/ld/esp32c3/memory.ld.in)
+       * [~/.espressif/v6.0.2/esp-idf/components/esp_system/ld/esp32c3/sections.ld.in](~/.espressif/v6.0.2/esp-idf/components/esp_system/ld/esp32c3/sections.ld.in)
 
-Open `main/hello_world_main.c`:
+Open [main/hello_world_main.c](../Phase1_The_Foundation/hello_world/main/hello_world_main.c):
 
 ```c
 #include <stdio.h>
@@ -314,9 +314,9 @@ Project build complete. To flash, run:
 ```
 
 This produces three binary files in the `build/` directory:
-- `bootloader/bootloader.bin` → Written to Flash at address `0x0`
-- `partition_table/partition-table.bin` → Written to Flash at address `0x8000`
-- `hello_world.bin` → Your application, written at address `0x10000`
+- [bootloader/bootloader.bin](../Phase1_The_Foundation/hello_world/build/bootloader/bootloader.bin) → Written to Flash at address `0x0`
+- [partition_table/partition-table.bin](../Phase1_The_Foundation/hello_world/build/partition_table/partition-table.bin) → Written to Flash at address `0x8000`
+- [hello_world.bin](../Phase1_The_Foundation/hello_world/build/hello_world.bin) → Your application, written at address `0x10000`
 
 ---
 
@@ -343,7 +343,7 @@ The `idf.py flash` command internally calls `esptool.py`, which:
 > This happens because Linux group permission changes require a new shell session. Fix it immediately in your terminal:
 > ```bash
 > newgrp dialout
-> source "/home/svishnu/.espressif/tools/activate_idf_v6.0.2.sh"
+> source ~/.espressif/tools/activate_idf_v6.0.2.sh
 > # OR temporarily grant permission directly:
 > sudo chmod 666 /dev/ttyACM0
 > ```

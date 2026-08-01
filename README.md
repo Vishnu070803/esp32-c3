@@ -2,6 +2,12 @@
 
 Welcome to the ESP32-C3 embedded learning repository! This project serves as a structured, phase-by-phase learning environment for transitioning from high-level software development (Linux/Web) into the world of bare-metal embedded systems.
 
+## The Learning Methodology: Parallel C and Rust
+
+This repository follows a unique **Parallel Implementation Strategy**:
+1. **The C Baseline (Configure & Test):** For every hardware concept, we first write, configure, and test the code using standard **C** via the official ESP-IDF framework. This establishes a strong, industry-standard understanding of the hardware, FreeRTOS, and the build system.
+2. **The Rust Port (Perform):** Once the C implementation is working, we port the exact same functionality to **Embedded Rust**. This allows us to directly compare the two paradigms and experience how Rust's compile-time safety and `no_std` (bare-metal) ecosystem handle the exact same hardware.
+
 ## The Hardware
 This repository is tailored for the **ESP32-C3-DevKit-RUST** board (or similar ESP32-C3 boards). 
 The ESP32-C3 is a single-core, 32-bit **RISC-V** microcontroller featuring integrated 2.4 GHz Wi-Fi and Bluetooth 5 (LE).
@@ -45,7 +51,7 @@ To prevent getting overwhelmed, the learning process is broken down into modular
 ## Getting Started
 1. Start at **Phase 0**. Open `Phase0_Power_and_Booting/00_Phase_Guide.md` and complete the hardware connection verification.
 2. Move sequentially through the folders, completing the Action Items at the bottom of each guide.
-3. Feel free to create new Rust projects (`cargo generate esp-rs/esp-template`) directly inside each Phase directory as you practice!
+3. Feel free to create new projects for both C (`idf.py create-project`) and Rust (`esp-generate`) directly inside each Phase directory as you practice!
 
 ## Prerequisites (Linux)
 Ensure your user is part of the `dialout` group to allow flashing without `sudo`:

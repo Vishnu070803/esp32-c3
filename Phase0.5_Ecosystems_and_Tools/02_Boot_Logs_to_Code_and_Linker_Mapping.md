@@ -17,7 +17,7 @@ rst:0xc (RTC_SW_CPU_RST),boot:0xc (SPI_FAST_FLASH_BOOT)
 | Log Element | Meaning | Source File / Hardware Component | Linker / Memory Mapping |
 | :--- | :--- | :--- | :--- |
 | `ESP-ROM` | 1st-stage ROM bootloader execution | Built-in Mask ROM on silicon | Executing at ROM address `0x40000000` |
-| `rst:0xc` | Reset reason: Software CPU Reset | `components/esp_system/port/soc/esp32c3/system_internal.c` | Reads RTC controller hardware register |
+| `rst:0xc` | Reset reason: Software CPU Reset | [components/esp_system/port/soc/esp32c3/system_internal.c](~/.espressif/v6.0.2/esp-idf/components/esp_system/port/soc/esp32c3/system_internal.c) | Reads RTC controller hardware register |
 | `boot:0xc` | Strapping pins state (`GPIO9=HIGH`) | Hardware GPIO sampling circuit | Selects SPI Flash Boot mode (`SPI_FAST_FLASH_BOOT`) |
 
 ---
@@ -35,7 +35,7 @@ entry 0x403cbf1a
 | :--- | :--- | :--- | :--- |
 | `load:0x3fcd5830` | ROM copies bootloader `.data` & `.bss` to SRAM | ROM Bootloader | Target: `bootloader.memory.ld` -> `iram_loader_seg` (`0x3FCD5830`) |
 | `load:0x403cbf10` | ROM copies bootloader code to SRAM IRAM | ROM Bootloader | Target: `bootloader.memory.ld` -> `iram_seg` (`0x403CBF10`) |
-| `entry 0x403cbf1a` | ROM jumps to 2nd stage bootloader entry point | `components/bootloader/subproject/main/bootloader_start.c` | Function `call_start_cpu0()` at `0x403CBF1A` |
+| `entry 0x403cbf1a` | ROM jumps to 2nd stage bootloader entry point | [components/bootloader/subproject/main/bootloader_start.c](~/.espressif/v6.0.2/esp-idf/components/bootloader/subproject/main/bootloader_start.c) | Function `call_start_cpu0()` at `0x403CBF1A` |
 
 ---
 
@@ -53,7 +53,7 @@ I (72) boot: End of partition table
 | Log Element | Meaning | Source File / Component | Flash & Memory Mapping |
 | :--- | :--- | :--- | :--- |
 | `I (24) boot` | 2nd Stage Bootloader banner printed | `bootloader_start.c` -> `bootloader_main()` | Executing inside SRAM (`0x403C...`) |
-| `Partition Table` | Reads flash memory map | `components/bootloader_support/src/bootloader_utility.c` | Reads Flash address `0x8000` (`partition-table.bin`) |
+| `Partition Table` | Reads flash memory map | [components/bootloader_support/src/bootloader_utility.c](~/.espressif/v6.0.2/esp-idf/components/bootloader_support/src/bootloader_utility.c) | Reads Flash address `0x8000` (`partition-table.bin`) |
 | `factory app` | Identifies main app offset | `partitions.csv` / `sdkconfig` | Application binary located at Flash offset `0x10000` |
 
 ---
@@ -81,7 +81,7 @@ This is where your compiled binary (`hello_world.bin`) is loaded into memory acc
 | **4 (load)**| `0x0002D7BC` | `0x40388C34` | `.iram0.data` | Instruction RAM literal data tables. |
 | **5 (load)**| `0x0002D984` | `0x50000000` | `.rtc.text` | Ultra-low-power RTC RAM memory segment for sleep mode retention. |
 
-> **Source File:** `components/bootloader_support/src/esp_image_format.c` -> `esp_image_load()`
+> **Source File:** [components/bootloader_support/src/esp_image_format.c](~/.espressif/v6.0.2/esp-idf/components/bootloader_support/src/esp_image_format.c) -> `esp_image_load()`
 
 ---
 
@@ -97,9 +97,9 @@ I (242) sleep_gpio: Enable automatic switching of GPIO sleep configuration
 
 | Log Element | Meaning | Source File / Component | Linker / Memory Mapping |
 | :--- | :--- | :--- | :--- |
-| `cpu_start` | CPU initialization & clock scaling | `components/esp_system/port/cpu_start.c` | Sets CPU clock to 160MHz via system registers |
-| `heap_init` | Dynamic Memory Allocator setup | `components/heap/heap_caps_init.c` | Scans remaining unused SRAM (between `0x3FC8B640` and `0x3FCC0000`) defined in `memory.ld` for `malloc()` |
-| `sleep_gpio` | Low-power GPIO state configuration | `components/esp_system/sleep_gpio.c` | Configures GPIO isolation modes |
+| `cpu_start` | CPU initialization & clock scaling | [components/esp_system/port/cpu_start.c](~/.espressif/v6.0.2/esp-idf/components/esp_system/port/cpu_start.c) | Sets CPU clock to 160MHz via system registers |
+| `heap_init` | Dynamic Memory Allocator setup | [components/heap/heap_caps_init.c](~/.espressif/v6.0.2/esp-idf/components/heap/heap_caps_init.c) | Scans remaining unused SRAM (between `0x3FC8B640` and `0x3FCC0000`) defined in `memory.ld` for `malloc()` |
+| `sleep_gpio` | Low-power GPIO state configuration | [components/esp_system/sleep_gpio.c](~/.espressif/v6.0.2/esp-idf/components/esp_system/sleep_gpio.c) | Configures GPIO isolation modes |
 
 ---
 
@@ -114,9 +114,9 @@ This is esp32c3 chip with 1 CPU core(s), WiFi/BLE, silicon revision v0.4, 2MB ex
 
 | Log Element | Meaning | Source File | Function Name |
 | :--- | :--- | :--- | :--- |
-| `main_task: Started` | FreeRTOS scheduler creates initial task | `components/esp_system/port/cpu_start.c` | `main_task()` |
-| `Calling app_main()` | FreeRTOS hands control over to your application code | `components/esp_system/port/cpu_start.c` | Calls `app_main()` |
-| `Hello world!` | **Your application executes!** | `main/hello_world_main.c` | `ESP_LOGI(TAG, "Hello world!");` / `printf()` |
+| `main_task: Started` | FreeRTOS scheduler creates initial task | [components/esp_system/port/cpu_start.c](~/.espressif/v6.0.2/esp-idf/components/esp_system/port/cpu_start.c) | `main_task()` |
+| `Calling app_main()` | FreeRTOS hands control over to your application code | [components/esp_system/port/cpu_start.c](~/.espressif/v6.0.2/esp-idf/components/esp_system/port/cpu_start.c) | Calls `app_main()` |
+| `Hello world!` | **Your application executes!** | [main/hello_world_main.c](../Phase1_The_Foundation/hello_world/main/hello_world_main.c) | `ESP_LOGI(TAG, "Hello world!");` / `printf()` |
 
 ---
 
@@ -148,7 +148,7 @@ CPU Start & Heap Init (cpu_start.c & heap_caps_init.c)
 FreeRTOS Kernel Starts ➔ Launches main_task()
     │
     ▼
-Calls app_main() in hello_world_main.c
+Calls app_main() in [hello_world_main.c](../Phase1_The_Foundation/hello_world/main/hello_world_main.c)
     │
     ▼
 "Hello world!" printed to Console (UART 0 / USB CDC)
@@ -161,10 +161,10 @@ Calls app_main() in hello_world_main.c
 | Log Phase | Memory Type | Address Range | Linked Section in `sections.ld` | Relevant C File |
 | :--- | :--- | :--- | :--- | :--- |
 | **ROM Boot** | Mask ROM | `0x40000000` | N/A (Hardware ROM) | Silicon Factory ROM |
-| **2nd Stage Boot** | SRAM (IRAM) | `0x403CBF10` | `bootloader.memory.ld` | `bootloader_start.c` |
-| **Partition Table** | SPI Flash | `0x00008000` | `partition-table.bin` | `bootloader_utility.c` |
-| **App Read-Only Data**| Flash DROM | `0x3C010020` | `.flash.rodata` | `esp_image_format.c` |
-| **App RAM Variables** | Internal SRAM | `0x3FC89000` | `.dram0.data` | `esp_image_format.c` |
-| **App Code Instructions**| Flash IROM | `0x42000020` | `.flash.text` | `esp_image_format.c` |
-| **FreeRTOS Heap** | Internal SRAM | `0x3FC8B640` | `dram0_0_seg` | `heap_caps_init.c` |
-| **User Application** | Flash/SRAM | `app_main` | `.flash.text` | `main/hello_world_main.c` |
+| **2nd Stage Boot** | SRAM (IRAM) | `0x403CBF10` | `bootloader.memory.ld` | [bootloader_start.c](~/.espressif/v6.0.2/esp-idf/components/bootloader/subproject/main/bootloader_start.c) |
+| **Partition Table** | SPI Flash | `0x00008000` | `partition-table.bin` | [bootloader_utility.c](~/.espressif/v6.0.2/esp-idf/components/bootloader_support/src/bootloader_utility.c) |
+| **App Read-Only Data**| Flash DROM | `0x3C010020` | `.flash.rodata` | [esp_image_format.c](~/.espressif/v6.0.2/esp-idf/components/bootloader_support/src/esp_image_format.c) |
+| **App RAM Variables** | Internal SRAM | `0x3FC89000` | `.dram0.data` | [esp_image_format.c](~/.espressif/v6.0.2/esp-idf/components/bootloader_support/src/esp_image_format.c) |
+| **App Code Instructions**| Flash IROM | `0x42000020` | `.flash.text` | [esp_image_format.c](~/.espressif/v6.0.2/esp-idf/components/bootloader_support/src/esp_image_format.c) |
+| **FreeRTOS Heap** | Internal SRAM | `0x3FC8B640` | `dram0_0_seg` | [heap_caps_init.c](~/.espressif/v6.0.2/esp-idf/components/heap/heap_caps_init.c) |
+| **User Application** | Flash/SRAM | `app_main` | `.flash.text` | [main/hello_world_main.c](../Phase1_The_Foundation/hello_world/main/hello_world_main.c) |
