@@ -58,10 +58,20 @@ Now let's build the exact same "Hello World" logic in pure, bare-metal Rust.
     ```bash
     esp-generate --chip esp32c3 hello_esp
     ```
-    *(If it prompts you for additional settings, you can accept the defaults for a standard bare-metal project).*
-4.  **Run it!**
+    *   **Module Selection:** When prompted by the interactive menu, select **`esp32c3-mini-1`** (since your DevKit uses the Mini module) and press `s` to save and generate.
+    *   *(You can accept the defaults for the rest of the features).*
+
+4.  **Add the Print Macro (The Rust Way!):**
+    Because we are in `#![no_std]` (bare-metal), there is no standard library `println!`. We use Espressif's custom crate to route text over the USB/UART.
     ```bash
     cd hello_esp
+    cargo add esp-println --features esp32c3
+    ```
+    Open `src/bin/main.rs`, add `use esp_println::println;` at the top, and insert `println!("Hello from baremetal Rust!");` inside the infinite `loop {}` at the bottom.
+
+5.  **Run it!**
+    ```bash
     cargo run
     ```
-    This will compile the bare-metal code, flash it over USB, and open a serial monitor so you can see the `println!("Hello world!");` output.
+    *   **Magic Note:** You don't need to specify the USB port! `espflash` (which is configured as the default runner in `.cargo/config.toml`) automatically detects your board, cross-compiles for RISC-V, flashes it, and opens the serial monitor.
+    *   **Bootloader Note:** You will initially see about 200ms of ESP-IDF boot logs! This is normal. The Rust ecosystem stitches a tiny, pre-compiled ESP-IDF 2nd-stage bootloader to your binary to map the SPI Flash memory. Once it says `Disabling RNG early entropy source...`, it hands 100% control over to your pure bare-metal Rust code!
