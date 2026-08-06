@@ -29,7 +29,8 @@ Because we are following the **Parallel C and Rust Methodology**, we will use tw
 We already explored this in Phase 0.5, but let's officially run it here!
 1.  **Activate the Environment:** 
     ```bash
-    source ~/.espressif/tools/activate_idf_v6.0.2.sh
+    source ~/.espressif/tools/activate_idf_v6.0.2.sh  # Linux
+    # . .\activate_idf.ps1                            # Windows PowerShell
     ```
 2.  **Navigate to the C Project:** 
     ```bash
@@ -39,7 +40,8 @@ We already explored this in Phase 0.5, but let's officially run it here!
     ```bash
     idf.py set-target esp32c3
     idf.py build
-    idf.py -p /dev/ttyACM0 flash monitor
+    idf.py -p /dev/ttyACM0 flash monitor  # Linux
+    # idf.py -p COM3 flash monitor        # Windows
     ```
 
 #### Part B: Porting to Embedded Rust

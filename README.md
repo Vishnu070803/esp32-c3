@@ -22,7 +22,7 @@ The `esp-rs` DevKit specifically includes:
 To prevent getting overwhelmed, the learning process is broken down into modular phases. Each phase has its own dedicated directory containing a `00_Phase_Guide.md` anchor document. You should read the anchor document to understand the underlying hardware architecture, and then use that directory as your workspace to write code and notes for the action items.
 
 *   📁 **`Phase0_Power_and_Booting/`**
-    *   Learn how the hardware physically turns on, the role of the LDO voltage regulator, Boot vs. EN buttons, and how the chip uses Strapping Pins to determine its boot mode. Verifying Linux serial connections (`/dev/ttyACM0`).
+    *   Learn how the hardware physically turns on, the role of the LDO voltage regulator, Boot vs. EN buttons, and how the chip uses Strapping Pins to determine its boot mode. Verifying serial connections (`/dev/ttyACM0` on Linux, `COMx` on Windows).
 *   📁 **`Phase0.5_Ecosystems_and_Tools/`**
     *   **"What, Where, and How?"** A complete breakdown of the programming environments: Arduino IDE, ESP-IDF (C/C++), MicroPython, and Rust. Includes complete guides on `idf.py` setup, ESP-IDF project structure, linker scripts (`memory.ld`/`sections.ld`), and an end-to-end mapping from live console boot logs to C source files and hardware memory addresses.
 *   📁 **`Phase1_The_Foundation/`**
@@ -53,9 +53,16 @@ To prevent getting overwhelmed, the learning process is broken down into modular
 2. Move sequentially through the folders, completing the Action Items at the bottom of each guide.
 3. Feel free to create new projects for both C (`idf.py create-project`) and Rust (`esp-generate`) directly inside each Phase directory as you practice!
 
-## Prerequisites (Linux)
+## Prerequisites
+### Linux
 Ensure your user is part of the `dialout` group to allow flashing without `sudo`:
 ```bash
 sudo usermod -a -G dialout $USER
 ```
 *(Remember to log out and log back in for this to take effect!)*
+
+### Windows
+If you installed ESP-IDF using the Espressif Installer but want to use standard PowerShell instead of their shortcut, you can use the included activation script to bypass Windows Store Python aliases:
+```powershell
+. .\activate_idf.ps1
+```

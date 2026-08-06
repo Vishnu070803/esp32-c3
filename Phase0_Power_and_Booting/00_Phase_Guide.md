@@ -44,6 +44,9 @@ When plugged in, Linux will typically assign it a device file:
 *   `/dev/ttyACM0` or `/dev/ttyACM1`
 *   Sometimes `/dev/ttyUSB0` (if a secondary UART bridge is used).
 
+On Windows, it is assigned a COM port:
+*   `COMx` (e.g., `COM3`, `COM4`) which can be checked in Device Manager.
+
 ### Action Item for You:
 Let's verify your Linux machine can see the board and that you have permission to talk to it.
 
@@ -56,9 +59,10 @@ Let's verify your Linux machine can see the board and that you have permission t
     Look for lines mentioning `usb`, `Espressif`, or a `tty` device attached.
 4.  Run this command to list serial devices:
     ```bash
-    ls -l /dev/ttyACM* /dev/ttyUSB*
+    ls -l /dev/ttyACM* /dev/ttyUSB*   # Linux
+    # [System.IO.Ports.SerialPort]::GetPortNames()   # Windows PowerShell
     ```
-    You should see an output like: `crw-rw---- 1 root dialout ... /dev/ttyACM0`. Note the group is usually `dialout`.
+    On Linux, you should see an output like: `crw-rw---- 1 root dialout ... /dev/ttyACM0`. Note the group is usually `dialout`.
 5.  **Crucial Step:** To flash the board without using `sudo` every time, your user must be in the `dialout` group. Check your groups by typing `groups`. If `dialout` is not there, run:
     ```bash
     sudo usermod -a -G dialout $USER

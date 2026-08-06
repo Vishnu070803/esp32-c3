@@ -53,7 +53,7 @@ sudo apt-get install -y git wget flex bison gperf python3 python3-pip \
 > - `git` — EIM clones the ESP-IDF source code from GitHub.
 > - `cmake` + `ninja-build` — The build system that compiles your C code.
 > - `python3` + `pip` — ESP-IDF uses Python extensively for its build scripts and the `esptool.py` flasher.
-> - `libusb-1.0-0` — The Linux USB library that `esptool.py` uses to talk to `/dev/ttyACM0`.
+> - `libusb-1.0-0` — The Linux USB library that `esptool.py` uses to talk to `/dev/ttyACM0` (On Windows, this is handled by WinUSB, CP210x, or CH340 drivers).
 
 ---
 
@@ -120,6 +120,40 @@ idf.py --version
 
 ---
 
+## Part 1.5: Installation on Windows
+
+> **Source:** [Official Windows Installation Guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/get-started/windows-setup.html)
+
+### Step 1: Install using the Espressif Windows Installer
+Espressif provides a dedicated IDE and CLI installer tool for Windows.
+1. Download the ESP-IDF Offline or Online Installer from [dl.espressif.com](https://dl.espressif.com/dl/esp-idf/).
+2. Run the installer and select the ESP-IDF version matching your Linux setup (e.g., v6.0.2).
+3. The installer handles Python, Git, CMake, Ninja, and the RISC-V toolchains automatically.
+
+### Step 2: Activating the Windows Environment
+Windows 10/11 has a feature called "App Execution Aliases" that intercepts the `python` command and redirects to the Microsoft Store. To bypass this and activate your environment seamlessly in a standard PowerShell terminal, we use a custom script.
+
+1. Open PowerShell in the root of your project repository.
+2. Run the provided activation script:
+   ```powershell
+   . .\activate_idf.ps1
+   ```
+   *(This dot-sources the environment, prioritizing the embedded Espressif Python to avoid the Windows Store prompt).*
+
+### Step 3: Resolving Windows Build Locks (`WinError 5`)
+When compiling on Windows inside a cloud-synced folder (like OneDrive or Dropbox), the build system rapidly creates hundreds of files. OneDrive will immediately lock these files to upload them. 
+
+If you try to run `idf.py fullclean` and get `PermissionError: [WinError 5] Access is denied`, it means a background process or OneDrive is locking the folder.
+
+**The Fix:**
+1. Manually destroy the build folder using PowerShell to bypass the Python lock:
+   ```powershell
+   Remove-Item -Recurse -Force build
+   ```
+2. For long-term development, move your entire ESP32 workspace OUT of OneDrive (e.g., to `C:\Vishnu\esp32-c3`) to prevent file locks entirely.
+
+---
+
 ## Part 2: Understanding the `idf.py` CLI
 
 `idf.py` is your one-stop command for everything in ESP-IDF. It is a Python wrapper around CMake, Ninja, and esptool.
@@ -129,9 +163,9 @@ idf.py --version
 | `idf.py set-target esp32c3` | Tells the build system your target chip is the ESP32-C3 (RISC-V) |
 | `idf.py menuconfig` | Opens an interactive text-based menu to configure your project |
 | `idf.py build` | Compiles all source code and generates `.bin` files |
-| `idf.py -p /dev/ttyACM0 flash` | Flashes the compiled `.bin` onto the chip via USB |
-| `idf.py -p /dev/ttyACM0 monitor` | Opens a serial monitor to read `printf()` output from the chip |
-| `idf.py -p /dev/ttyACM0 flash monitor` | Builds, flashes, AND opens the monitor in one command |
+| `idf.py -p /dev/ttyACM0 flash` | Flashes the compiled `.bin` onto the chip via USB (Use `COMx` on Windows) |
+| `idf.py -p /dev/ttyACM0 monitor` | Opens a serial monitor to read `printf()` output from the chip (Use `COMx` on Windows) |
+| `idf.py -p /dev/ttyACM0 flash monitor` | Builds, flashes, AND opens the monitor in one command (Use `COMx` on Windows) |
 | `idf.py fullclean` | Deletes the `build/` directory and all compiled output (fresh rebuild) |
 
 ---
@@ -324,12 +358,13 @@ This produces three binary files in the `build/` directory:
 
 ### Step 1: Verify the Serial Port
 
-Your board is at `/dev/ttyACM0` (confirmed in Phase 0).
+Your board is at `/dev/ttyACM0` on Linux, or a port like `COM3` on Windows (check Device Manager or use `[System.IO.Ports.SerialPort]::GetPortNames()` in PowerShell).
 
 ### Step 2: Flash!
 
 ```bash
-idf.py -p /dev/ttyACM0 flash
+idf.py -p /dev/ttyACM0 flash  # Linux
+# idf.py -p COM3 flash        # Windows
 ```
 
 The `idf.py flash` command internally calls `esptool.py`, which:
@@ -339,7 +374,7 @@ The `idf.py flash` command internally calls `esptool.py`, which:
 4. Writes the three binary files to the correct Flash addresses.
 5. Sends a reset command to restart the board into **Normal Boot Mode**, which runs your new code.
 
-> **If flashing fails with `Path '/dev/ttyACM0' is not readable`:**
+> **If flashing fails with `Path '/dev/ttyACM0' is not readable` (Linux):**
 > This happens because Linux group permission changes require a new shell session. Fix it immediately in your terminal:
 > ```bash
 > newgrp dialout
@@ -347,13 +382,17 @@ The `idf.py flash` command internally calls `esptool.py`, which:
 > # OR temporarily grant permission directly:
 > sudo chmod 666 /dev/ttyACM0
 > ```
+> 
+> **If flashing fails on Windows (`Permission Denied` on COM port):**
+> This usually means you have another terminal (or the serial monitor itself) open that is holding the COM port open. Close the other terminal or press `Ctrl + ]` to exit the active monitor.
 
 ---
 
 ## Part 5: Monitor the Output
 
 ```bash
-idf.py -p /dev/ttyACM0 monitor
+idf.py -p /dev/ttyACM0 monitor  # Linux
+# idf.py -p COM3 monitor        # Windows
 ```
 
 This opens a serial terminal at 115200 baud. To exit IDF monitor, press **`Ctrl + ]`**.
@@ -416,6 +455,7 @@ Restarting in 10 seconds...
 | :--- | :--- |
 | ESP-IDF Get Started | [docs.espressif.com](https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/get-started/index.html) |
 | ESP-IDF Linux Installation | [linux-setup.html](https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/get-started/linux-setup.html) |
+| ESP-IDF Windows Installation | [windows-setup.html](https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/get-started/windows-setup.html) |
 | Linux Project Start Guide | [linux-macos-start-project.html](https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/get-started/linux-macos-start-project.html) |
 | idf.py Reference | [build-system.html](https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/api-guides/build-system.html) |
 | esptool.py Reference | [esptool.io](https://docs.espressif.com/projects/esptool/en/latest/) |
