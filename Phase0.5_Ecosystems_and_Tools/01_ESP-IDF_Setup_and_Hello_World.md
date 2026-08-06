@@ -160,6 +160,7 @@ If you try to run `idf.py fullclean` and get `PermissionError: [WinError 5] Acce
 
 | Command | What It Does |
 | :--- | :--- |
+| `idf.py create-project <name>` | Generates a brand new, empty project skeleton with a CMakeLists.txt and main folder |
 | `idf.py set-target esp32c3` | Tells the build system your target chip is the ESP32-C3 (RISC-V) |
 | `idf.py menuconfig` | Opens an interactive text-based menu to configure your project |
 | `idf.py build` | Compiles all source code and generates `.bin` files |
@@ -174,8 +175,17 @@ If you try to run `idf.py fullclean` and get `PermissionError: [WinError 5] Acce
 
 > **Source:** [Start a Project on Linux from Command Line](https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/get-started/linux-macos-start-project.html)
 
-### Step 1: Copy the Hello World Example
+### Step 1: Start a Project (Two Methods)
 
+**Method A: Create a Blank Project (From Scratch)**
+To generate a brand new, empty project skeleton, use the `create-project` command:
+```bash
+idf.py create-project my_project
+cd my_project
+```
+This will generate a `CMakeLists.txt` file and a `main/` folder for you.
+
+**Method B: Copy an Existing Example (What we will do)**
 ESP-IDF ships with dozens of example projects. Let's copy the hello_world example to our Phase 1 working directory:
 
 ```bash
